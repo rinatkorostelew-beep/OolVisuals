@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "oolvisuals",
+  "version": "${version}",
+  "name": "Ool Visuals",
+  "description": "PvP visuals: removes shake, totem animation, fog, screen block overlay, arrows in body, break particles. Includes the PvP Lite red pack.",
+  "authors": ["Ool"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.ool.visuals.VisualsMod"]
+  },
+  "mixins": [
+    { "config": "oolvisuals.mixins.json", "environment": "client" }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
