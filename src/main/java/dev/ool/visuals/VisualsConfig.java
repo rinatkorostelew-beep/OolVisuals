@@ -75,8 +75,8 @@ public final class VisualsConfig {
         String st = p.getProperty("stretch");
         if (st != null) {
             try {
-                float f = Float.parseFloat(st.trim());
-                stretch = Math.max(STRETCH_MIN, Math.min(STRETCH_MAX, f));
+                float parsed = Float.parseFloat(st.trim());
+                stretch = Math.max(STRETCH_MIN, Math.min(STRETCH_MAX, parsed));
             } catch (NumberFormatException ignored) {
             }
         }
