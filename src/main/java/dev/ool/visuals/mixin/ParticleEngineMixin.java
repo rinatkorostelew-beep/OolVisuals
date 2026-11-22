@@ -3,10 +3,8 @@ package dev.ool.visuals.mixin;
 import dev.ool.visuals.VisualsConfig;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,18 +14,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ParticleEngine.class)
 public class ParticleEngineMixin {
 
-    /** particles when a block is broken */
-    @Inject(method = "destroy", at = @At("HEAD"), cancellable = true, require = 0)
-    private void ool$noDestroy(BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (VisualsConfig.BREAK_PARTICLES.value) {
-            ci.cancel();
-        }
-    }
-
-    /** particles while a block is being mined */
-    @Inject(method = "crack", at = @At("HEAD"), cancellable = true, require = 0)
-    private void ool$noCrack(BlockPos pos, Direction side, CallbackInfo ci) {
-        if (VisualsConfig.BREAK_PARTICLES.value) {
+    /**
+     * Block break / mining / block dust particles are all TerrainParticle.
+     * (ParticleEngine#destroy and #crack are not found in 1.21.11, so we filter here instead.)
+     */
+    @Inject(method = "add", at = @At("HEAD"), cancellable = true, require = 0)
+    private void ool$noTerrainParticles(Particle particle, CallbackInfo ci) {
+        if (VisualsConfig.BREAK_PARTICLES.value && particle instanceof TerrainParticle) {
             ci.cancel();
         }
     }
