@@ -1,6 +1,8 @@
 package dev.ool.visuals;
 
+import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +35,18 @@ public final class VisualsConfig {
     public static final Option BREAK_PARTICLES = new Option("noBreakParticles", "Частицы разрушения", true);
     public static final Option ALL_PARTICLES = new Option("noParticles", "Все частицы", false);
 
-    /** horizontal stretch of the picture: 1.0 = normal, up to 1.8 = wider objects */
-    public static final float STRETCH_MIN = 1.0F;
-    public static final float STRETCH_MAX = 1.8F;
-    public static float stretch = 1.0F;
+    /** Aspect ratio of the 3D picture (width / height). Window aspect is the normal look. */
+    public static final float ASPECT_MIN = 0.80F;
+    public static final float ASPECT_MAX = 2.50F;
+    public static final float[] ASPECT_PRESETS = {1.00F, 1.25F, 1.33F, 1.60F, 2.33F};
+    public static boolean aspectEnabled = false;
+    public static float aspectRatio = 1.33F;
+
+    /** show the distance of your last hit on a player */
+    public static boolean hitDistance = true;
+
+    /** Auto sprint: while you hold W you sprint without double-tapping (toggled by a key or in /visuals) */
+    public static boolean autoSprint = false;
 
     /** Fast Block Place: hold the use button, blocks are placed every N ticks (vanilla = 4) */
     public static boolean fastPlace = false;
@@ -44,6 +54,23 @@ public final class VisualsConfig {
 
     public static final List<Option> OPTIONS = List.of(
             SHAKE, TOTEM, FOG, BLOCK_OVERLAY, ARROWS, BREAK_PARTICLES, ALL_PARTICLES);
+
+    /** 1.0 = unchanged. >1 = narrower picture (objects look wider), <1 = wider picture. */
+    public static float aspectScale() {
+        if (!aspectEnabled) {
+            return 1.0F;
+        }
+        try {
+            Window w = Minecraft.getInstance().getWindow();
+            if (w.getHeight() <= 0) {
+                return 1.0F;
+            }
+            float windowAspect = (float) w.getWidth() / (float) w.getHeight();
+            return windowAspect / aspectRatio;
+        } catch (Throwable t) {
+            return 1.0F;
+        }
+    }
 
     private static Path file() {
         return FabricLoader.getInstance().getConfigDir().resolve("oolvisuals.properties");
@@ -72,13 +99,13 @@ public final class VisualsConfig {
             fastPlaceDelay = Math.max(1, Math.min(3, d));
         } catch (NumberFormatException ignored) {
         }
-        String st = p.getProperty("stretch");
-        if (st != null) {
-            try {
-                float parsed = Float.parseFloat(st.trim());
-                stretch = Math.max(STRETCH_MIN, Math.min(STRETCH_MAX, parsed));
-            } catch (NumberFormatException ignored) {
-            }
+        autoSprint = Boolean.parseBoolean(p.getProperty("autoSprint", "false").trim());
+        aspectEnabled = Boolean.parseBoolean(p.getProperty("aspectEnabled", "false").trim());
+        hitDistance = Boolean.parseBoolean(p.getProperty("hitDistance", "true").trim());
+        try {
+            float a = Float.parseFloat(p.getProperty("aspectRatio", "1.33").trim());
+            aspectRatio = Math.max(ASPECT_MIN, Math.min(ASPECT_MAX, a));
+        } catch (NumberFormatException ignored) {
         }
     }
 
@@ -87,7 +114,10 @@ public final class VisualsConfig {
         for (Option o : OPTIONS) {
             p.setProperty(o.key, Boolean.toString(o.value));
         }
-        p.setProperty("stretch", Float.toString(stretch));
+        p.setProperty("autoSprint", Boolean.toString(autoSprint));
+        p.setProperty("aspectEnabled", Boolean.toString(aspectEnabled));
+        p.setProperty("aspectRatio", Float.toString(aspectRatio));
+        p.setProperty("hitDistance", Boolean.toString(hitDistance));
         p.setProperty("fastPlace", Boolean.toString(fastPlace));
         p.setProperty("fastPlaceDelay", Integer.toString(fastPlaceDelay));
         try (OutputStream out = Files.newOutputStream(file())) {

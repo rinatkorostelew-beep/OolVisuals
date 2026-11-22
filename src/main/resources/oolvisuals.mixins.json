@@ -10,7 +10,9 @@
     "LivingEntityMixin",
     "ScreenEffectRendererMixin",
     "PerspectiveProjectionMatrixBufferMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "MultiPlayerGameModeMixin",
+    "FrustumMixin"
   ],
   "injectors": {
     "defaultRequire": 0
