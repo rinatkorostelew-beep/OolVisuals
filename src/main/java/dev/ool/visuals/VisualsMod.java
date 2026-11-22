@@ -64,7 +64,7 @@ public class VisualsMod implements ClientModInitializer {
             }
         });
 
-        // distance of your last hit on a player, shown under the crosshair
+        // distance of your last hit on a player, shown in the top-right corner
         HudRenderCallback.EVENT.register((graphics, tickCounter) -> {
             if (!VisualsConfig.hitDistance) {
                 return;
@@ -79,8 +79,8 @@ public class VisualsMod implements ClientModInitializer {
             }
             int color = d >= 2.5 ? 0xFF55FF55 : (d >= 1.5 ? 0xFFFFFF55 : 0xFFFF5555);
             String text = "Удар с " + String.format(Locale.ROOT, "%.2f", d) + " бл.";
-            graphics.drawCenteredString(mc.font, text, mc.getWindow().getGuiScaledWidth() / 2,
-                    mc.getWindow().getGuiScaledHeight() / 2 + 14, color);
+            int x = mc.getWindow().getGuiScaledWidth() - mc.font.width(text) - 6;   // top-right corner
+            graphics.drawString(mc.font, text, x, 6, color, true);
         });
     }
 }

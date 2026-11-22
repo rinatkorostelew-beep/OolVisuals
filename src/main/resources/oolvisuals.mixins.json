@@ -12,7 +12,8 @@
     "PerspectiveProjectionMatrixBufferMixin",
     "MinecraftMixin",
     "MultiPlayerGameModeMixin",
-    "FrustumMixin"
+    "FrustumMixin",
+    "GameRendererProjectionMixin"
   ],
   "injectors": {
     "defaultRequire": 0

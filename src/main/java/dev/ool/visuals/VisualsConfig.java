@@ -3,6 +3,7 @@ package dev.ool.visuals;
 import com.mojang.blaze3d.platform.Window;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import org.joml.Matrix4f;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +71,37 @@ public final class VisualsConfig {
         } catch (Throwable t) {
             return 1.0F;
         }
+    }
+
+    private static Matrix4f lastScaled = null;
+
+    /**
+     * Applies the Aspect X-scale to a projection matrix. Safe to call from several places:
+     * a matrix that was already scaled (same object, or its X scale already matches) is returned as is,
+     * so the picture can never be scaled twice.
+     */
+    public static Matrix4f applyAspect(Matrix4f m) {
+        float s = aspectScale();
+        if (Math.abs(s - 1.0F) < 0.0001F || m == null || m == lastScaled) {
+            return m;
+        }
+        try {
+            Window w = Minecraft.getInstance().getWindow();
+            float windowAspect = (float) w.getWidth() / (float) w.getHeight();
+            float unscaledX = m.m11() / windowAspect;      // m00 of a plain perspective matrix
+            float tol = 0.003F * Math.abs(unscaledX) + 1.0E-5F;
+            boolean looksUnscaled = Math.abs(m.m00() - unscaledX) <= tol;
+            boolean looksScaled = Math.abs(m.m00() - unscaledX * s) <= tol;
+            if (looksScaled && !looksUnscaled) {
+                return m;
+            }
+        } catch (Throwable t) {
+            return m;
+        }
+        Matrix4f copy = new Matrix4f(m);
+        copy.m00(copy.m00() * s);
+        lastScaled = copy;
+        return copy;
     }
 
     private static Path file() {
