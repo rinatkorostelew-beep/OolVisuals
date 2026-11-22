@@ -8,7 +8,9 @@
     "FogRendererMixin",
     "ParticleEngineMixin",
     "LivingEntityMixin",
-    "ScreenEffectRendererMixin"
+    "ScreenEffectRendererMixin",
+    "PerspectiveProjectionMatrixBufferMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 0

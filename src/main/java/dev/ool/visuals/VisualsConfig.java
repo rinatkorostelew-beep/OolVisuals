@@ -31,7 +31,16 @@ public final class VisualsConfig {
     public static final Option BLOCK_OVERLAY = new Option("noBlockOverlay", "Блоки на экране", true);
     public static final Option ARROWS = new Option("noArrows", "Стрелы в игроке", true);
     public static final Option BREAK_PARTICLES = new Option("noBreakParticles", "Частицы разрушения", true);
-    public static final Option ALL_PARTICLES = new Option("noParticles", "Все частицы (и криты тоже)", false);
+    public static final Option ALL_PARTICLES = new Option("noParticles", "Все частицы", false);
+
+    /** horizontal stretch of the picture: 1.0 = normal, up to 1.8 = wider objects */
+    public static final float STRETCH_MIN = 1.0F;
+    public static final float STRETCH_MAX = 1.8F;
+    public static float stretch = 1.0F;
+
+    /** Fast Block Place: hold the use button, blocks are placed every N ticks (vanilla = 4) */
+    public static boolean fastPlace = false;
+    public static int fastPlaceDelay = 2;   // 1..3
 
     public static final List<Option> OPTIONS = List.of(
             SHAKE, TOTEM, FOG, BLOCK_OVERLAY, ARROWS, BREAK_PARTICLES, ALL_PARTICLES);
@@ -57,6 +66,20 @@ public final class VisualsConfig {
                 o.value = Boolean.parseBoolean(v.trim());
             }
         }
+        fastPlace = Boolean.parseBoolean(p.getProperty("fastPlace", "false").trim());
+        try {
+            int d = Integer.parseInt(p.getProperty("fastPlaceDelay", "2").trim());
+            fastPlaceDelay = Math.max(1, Math.min(3, d));
+        } catch (NumberFormatException ignored) {
+        }
+        String st = p.getProperty("stretch");
+        if (st != null) {
+            try {
+                float f = Float.parseFloat(st.trim());
+                stretch = Math.max(STRETCH_MIN, Math.min(STRETCH_MAX, f));
+            } catch (NumberFormatException ignored) {
+            }
+        }
     }
 
     public static void save() {
@@ -64,6 +87,9 @@ public final class VisualsConfig {
         for (Option o : OPTIONS) {
             p.setProperty(o.key, Boolean.toString(o.value));
         }
+        p.setProperty("stretch", Float.toString(stretch));
+        p.setProperty("fastPlace", Boolean.toString(fastPlace));
+        p.setProperty("fastPlaceDelay", Integer.toString(fastPlaceDelay));
         try (OutputStream out = Files.newOutputStream(file())) {
             p.store(out, "Ool Visuals: true = effect removed");
         } catch (IOException ignored) {
