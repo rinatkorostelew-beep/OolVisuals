@@ -23,7 +23,7 @@ public class VisualsMod implements ClientModInitializer {
     private static KeyMapping sprintToggleKey;
 
     public static String sprintKeyName() {
-        return sprintToggleKey == null ? "G" : sprintToggleKey.getKey().getDisplayName().getString();
+        return sprintToggleKey == null ? "G" : sprintToggleKey.getTranslatedKeyMessage().getString();
     }
 
     @Override
